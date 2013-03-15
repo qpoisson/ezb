@@ -32,7 +32,6 @@
 #include "EZMesh.h"
 #include <new.h>
 
-#define MESH_BINARY_VERSION 101
 
 namespace mimp
 {
@@ -43,7 +42,7 @@ namespace mimp
 /**
 \brief A wrapper class for MiFileBuf that provides both binary and ASCII streaming capabilities
 */
-class MiIOStream
+class InputStream
 {
 	static const physx::PxU32 MAX_STREAM_STRING = 1024;
 public:
@@ -69,14 +68,14 @@ public:
 	}
 
 
-	MiIOStream(void)
+	InputStream(void)
 	{
 		mInputStream = NULL;
 		mEndianSwap = !isBigEndian(); // by default streams are read/written in big endian format so that they are higher performance on consoles.  
 		mTempAllocs = NULL;
 	}
 
-	~MiIOStream(void) 
+	~InputStream(void) 
 	{ 
 		TempAlloc *f = mTempAllocs;
 		while ( f )
@@ -128,7 +127,7 @@ public:
 
 
 
-	PX_INLINE MiIOStream& operator>>(const char *&str)
+	PX_INLINE InputStream& operator>>(const char *&str)
 	{
 		str = ""; // by default no string streamed...
 		physx::PxU32 len=0;
@@ -148,36 +147,37 @@ public:
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(bool &v)
+	PX_INLINE InputStream& operator>>(bool &bv)
 	{
+		physx::PxU32 v = (physx::PxU32)bv;
 		v = *(const bool *)mInputStream;
 		mInputStream+=sizeof(v);
 		swap4Bytes(&v);
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(char &v)
+	PX_INLINE InputStream& operator>>(char &v)
 	{
 		v = *(const char *)mInputStream;
 		mInputStream+=sizeof(v);
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxU8 &v)
+	PX_INLINE InputStream& operator>>(physx::PxU8 &v)
 	{
 		v = *(const physx::PxU8 *)mInputStream;
 		mInputStream+=sizeof(v);
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxI8 &v)
+	PX_INLINE InputStream& operator>>(physx::PxI8 &v)
 	{
 		v = *(const physx::PxI8 *)mInputStream;
 		mInputStream+=sizeof(v);
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxI64 &v)
+	PX_INLINE InputStream& operator>>(physx::PxI64 &v)
 	{
 		v = *(const physx::PxI64 *)mInputStream;
 		swap8Bytes(&v);
@@ -185,7 +185,7 @@ public:
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxU64 &v)
+	PX_INLINE InputStream& operator>>(physx::PxU64 &v)
 	{
 		v = *(const physx::PxU64 *)mInputStream;
 		mInputStream+=sizeof(v);
@@ -193,7 +193,7 @@ public:
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxF64 &v)
+	PX_INLINE InputStream& operator>>(physx::PxF64 &v)
 	{
 		v = *(const physx::PxF64 *)mInputStream;
 		mInputStream+=sizeof(v);
@@ -201,7 +201,7 @@ public:
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxF32 &v)
+	PX_INLINE InputStream& operator>>(physx::PxF32 &v)
 	{
 		v = *(const physx::PxF32 *)mInputStream;
 		mInputStream+=sizeof(v);
@@ -209,7 +209,7 @@ public:
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxU32 &v)
+	PX_INLINE InputStream& operator>>(physx::PxU32 &v)
 	{
 		v = *(const physx::PxU32 *)mInputStream;
 		mInputStream+=sizeof(v);
@@ -217,21 +217,21 @@ public:
 		return *this;
 	}
 
-	PX_INLINE MiIOStream& operator>>(physx::PxI32 &v)
+	PX_INLINE InputStream& operator>>(physx::PxI32 &v)
 	{
 		v = *(const physx::PxI32 *)mInputStream;
 		mInputStream+=sizeof(v);
 		swap4Bytes(&v);
 		return *this;
 	}
-	PX_INLINE MiIOStream& operator>>(physx::PxU16 &v)
+	PX_INLINE InputStream& operator>>(physx::PxU16 &v)
 	{
 		v = *(const physx::PxU16 *)mInputStream;
 		mInputStream+=sizeof(v);
 		swap2Bytes(&v);
 		return *this;
 	}
-	PX_INLINE MiIOStream& operator>>(physx::PxI16 &v)
+	PX_INLINE InputStream& operator>>(physx::PxI16 &v)
 	{
 		v = *(const physx::PxI16 *)mInputStream;
 		mInputStream+=sizeof(v);
@@ -251,7 +251,7 @@ private:
 	TempAlloc				*mTempAllocs;
 };
 
-void deserialize(MiIOStream &mStream,MeshAABB &m)
+void deserialize(InputStream &mStream,MeshAABB &m)
 {
 	mStream >> m.mMin[0];
 	mStream >> m.mMin[1];
@@ -260,7 +260,7 @@ void deserialize(MiIOStream &mStream,MeshAABB &m)
 	mStream >> m.mMax[1];
 	mStream >> m.mMax[2];
 }
-void deserialize(MiIOStream &mStream,MeshRawTexture &m)
+void deserialize(InputStream &mStream,MeshRawTexture &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mWidth;
@@ -275,12 +275,12 @@ void deserialize(MiIOStream &mStream,MeshRawTexture &m)
 	}
 }
 
-void deserialize(MiIOStream & /*mStream*/,MeshTetra & /*mrt*/)
+void deserialize(InputStream & /*mStream*/,MeshTetra & /*mrt*/)
 {
 	PX_ALWAYS_ASSERT(); // Not yet implemented
 }
 
-void deserialize(MiIOStream &mStream,MeshBone &m)
+void deserialize(InputStream &mStream,MeshBone &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mParentIndex;
@@ -296,7 +296,7 @@ void deserialize(MiIOStream &mStream,MeshBone &m)
 	mStream >> m.mScale[2];
 }
 
-void deserialize(MiIOStream &mStream,MeshSkeleton &m)
+void deserialize(InputStream &mStream,MeshSkeleton &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mBoneCount;
@@ -315,7 +315,7 @@ void deserialize(MiIOStream &mStream,MeshSkeleton &m)
 	}
 }
 
-void deserialize(MiIOStream &mStream,MeshAnimPose &m)
+void deserialize(InputStream &mStream,MeshAnimPose &m)
 {
 	mStream >> m.mPos[0];
 	mStream >> m.mPos[1];
@@ -329,7 +329,7 @@ void deserialize(MiIOStream &mStream,MeshAnimPose &m)
 	mStream >> m.mScale[2];
 }
 
-void deserialize(MiIOStream &mStream,MeshAnimTrack &m)
+void deserialize(InputStream &mStream,MeshAnimTrack &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mFrameCount;
@@ -350,7 +350,7 @@ void deserialize(MiIOStream &mStream,MeshAnimTrack &m)
 	}
 }
 
-void deserialize(MiIOStream &mStream,MeshAnimation &m)
+void deserialize(InputStream &mStream,MeshAnimation &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mTrackCount;
@@ -370,19 +370,19 @@ void deserialize(MiIOStream &mStream,MeshAnimation &m)
 	}
 }
 
-void deserialize(MiIOStream &mStream,MeshMaterial &m)
+void deserialize(InputStream &mStream,MeshMaterial &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mMetaData;
 }
 
-void deserialize(MiIOStream &mStream,MeshUserData &m)
+void deserialize(InputStream &mStream,MeshUserData &m)
 {
 	mStream >> m.mUserKey;
 	mStream >> m.mUserValue;
 }
 
-void deserialize(MiIOStream &mStream,MeshUserBinaryData &m)
+void deserialize(InputStream &mStream,MeshUserBinaryData &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mUserLen;
@@ -393,7 +393,7 @@ void deserialize(MiIOStream &mStream,MeshUserBinaryData &m)
 	}
 }
 
-void deserialize(MiIOStream &mStream,SubMesh &m)
+void deserialize(InputStream &mStream,SubMesh &m)
 {
 	mStream >> m.mMaterialName;
 	deserialize(mStream,m.mAABB);
@@ -409,7 +409,7 @@ void deserialize(MiIOStream &mStream,SubMesh &m)
 	}
 }
 
-void deserialize(MiIOStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
+void deserialize(InputStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
 {
 
 	if ( vertexFlags & MIVF_POSITION )
@@ -536,7 +536,7 @@ void deserialize(MiIOStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
 }
 
 
-void deserialize(MiIOStream &mStream,Mesh &m)
+void deserialize(InputStream &mStream,Mesh &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mSkeletonName;
@@ -567,7 +567,7 @@ void deserialize(MiIOStream &mStream,Mesh &m)
 	}
 }
 
-void deserialize(MiIOStream &mStream,MeshInstance &m)
+void deserialize(InputStream &mStream,MeshInstance &m)
 {
 	mStream >> m.mMeshName;
 	mStream >> m.mPosition[0];
@@ -582,7 +582,7 @@ void deserialize(MiIOStream &mStream,MeshInstance &m)
 	mStream >> m.mScale[2];
 }
 
-void deserialize(MiIOStream & /*mStream*/,const MeshCollisionRepresentation & /*m*/)
+void deserialize(InputStream & /*mStream*/,const MeshCollisionRepresentation & /*m*/)
 {
 	PX_ALWAYS_ASSERT(); // need to implement
 }
@@ -830,7 +830,7 @@ public:
 		delete this;
 	}
 
-	MiIOStream	mStream;
+	InputStream	mStream;
 };
 
 MeshImportEZB *createMeshImportEZB(const void *data)

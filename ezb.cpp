@@ -35,6 +35,7 @@
 #include "MeshImport/EZMesh.h"
 #include "MeshImport/MeshImportEZB.h"
 #include "MeshImport/MeshExportEZM.h"
+#include "MeshImport/MeshExportEZB.h"
 
 #pragma warning(disable:4996)
 
@@ -75,11 +76,20 @@ void main(int argc,const char **argv)
 								if ( dot )
 								{
 									*dot = 0;
+									strcat(scratch,".ezm");
+									printf("Exporting binary file as XML EZ-Mesh to '%s'\r\n", scratch );
+									bool ok = exportEZM(scratch,ms);
+									printf("Export file(%s) complete.  Success=%s\r\n", scratch, ok ? "true" : "false");
+									*dot = 0;
+									strcat(scratch,"_EXPORT.ezb");
+									printf("Re-exporting it in binary again just for testing purposes.\r\n");
+									ok = exportEZB(scratch,ms);
+									printf("Export file(%s) complete.  Success=%s\r\n", scratch, ok ? "true" : "false");
 								}
-								strcat(scratch,".ezm");
-								printf("Exporting binary file as XML EZ-Mesh to '%s'\r\n", scratch );
-								bool ok = exportEZM(scratch,ms);
-								printf("Export complete.  Success=%s\r\n", ok ? "true" : "false");
+								else
+								{
+									printf("Input file name missing extension?? %s\r\n", argv[1] );
+								}
 							}
 							ezb->release();
 						}
