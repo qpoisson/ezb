@@ -34,6 +34,8 @@
 
 #include "foundation/PxVec3.h"
 
+#define MESH_BINARY_VERSION 101	// version number of the binary file format
+
 namespace mimp
 {
 
