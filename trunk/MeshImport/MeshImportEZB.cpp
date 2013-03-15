@@ -33,7 +33,7 @@
 #include <new.h>
 
 
-namespace mimp
+namespace ezmesh
 {
 
 #define MI_ALLOC(x) ::malloc(x)
@@ -251,14 +251,14 @@ private:
 	TempAlloc				*mTempAllocs;
 };
 
-void deserialize(InputStream &mStream,MeshAABB &m)
+void deserialize(InputStream &mStream,physx::PxBounds3 &m)
 {
-	mStream >> m.mMin[0];
-	mStream >> m.mMin[1];
-	mStream >> m.mMin[2];
-	mStream >> m.mMax[0];
-	mStream >> m.mMax[1];
-	mStream >> m.mMax[2];
+	mStream >> m.minimum[0];
+	mStream >> m.minimum[1];
+	mStream >> m.minimum[2];
+	mStream >> m.maximum[0];
+	mStream >> m.maximum[1];
+	mStream >> m.maximum[2];
 }
 void deserialize(InputStream &mStream,MeshRawTexture &m)
 {
@@ -287,10 +287,10 @@ void deserialize(InputStream &mStream,MeshBone &m)
 	mStream >> m.mPosition[0];
 	mStream >> m.mPosition[1];
 	mStream >> m.mPosition[2];
-	mStream >> m.mOrientation[0];
-	mStream >> m.mOrientation[1];
-	mStream >> m.mOrientation[2];
-	mStream >> m.mOrientation[3];
+	mStream >> m.mOrientation.x;
+	mStream >> m.mOrientation.y;
+	mStream >> m.mOrientation.z;
+	mStream >> m.mOrientation.w;
 	mStream >> m.mScale[0];
 	mStream >> m.mScale[1];
 	mStream >> m.mScale[2];
@@ -320,10 +320,10 @@ void deserialize(InputStream &mStream,MeshAnimPose &m)
 	mStream >> m.mPos[0];
 	mStream >> m.mPos[1];
 	mStream >> m.mPos[2];
-	mStream >> m.mQuat[0];
-	mStream >> m.mQuat[1];
-	mStream >> m.mQuat[2];
-	mStream >> m.mQuat[3];
+	mStream >> m.mQuat.x;
+	mStream >> m.mQuat.y;
+	mStream >> m.mQuat.z;
+	mStream >> m.mQuat.w;
 	mStream >> m.mScale[0];
 	mStream >> m.mScale[1];
 	mStream >> m.mScale[2];
@@ -573,10 +573,10 @@ void deserialize(InputStream &mStream,MeshInstance &m)
 	mStream >> m.mPosition[0];
 	mStream >> m.mPosition[1];
 	mStream >> m.mPosition[2];
-	mStream >> m.mRotation[0];
-	mStream >> m.mRotation[1];
-	mStream >> m.mRotation[2];
-	mStream >> m.mRotation[3];
+	mStream >> m.mRotation.x;
+	mStream >> m.mRotation.y;
+	mStream >> m.mRotation.z;
+	mStream >> m.mRotation.w;
 	mStream >> m.mScale[0];
 	mStream >> m.mScale[1];
 	mStream >> m.mScale[2];
@@ -727,10 +727,10 @@ public:
 				deserialize(mStream,*m);
 				mMeshCollisionRepresentations[i] = m;
 			}
-			mStream >> mPlane[0];
-			mStream >> mPlane[1];
-			mStream >> mPlane[2];
-			mStream >> mPlane[3];
+			mStream >> mPlane.n.x;
+			mStream >> mPlane.n.y;
+			mStream >> mPlane.n.z;
+			mStream >> mPlane.d;
 		}
 	}
 

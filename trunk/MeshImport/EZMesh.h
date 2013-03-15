@@ -32,11 +32,16 @@
 #ifndef EZMESH_H
 #define EZMESH_H
 
+#include "foundation/PxVec2.h"
 #include "foundation/PxVec3.h"
+#include "foundation/PxVec4.h"
+#include "foundation/PxQuat.h"
+#include "foundation/PxPlane.h"
+#include "foundation/PxBounds3.h"
 
 #define MESH_BINARY_VERSION 101	// version number of the binary file format
 
-namespace mimp
+namespace ezmesh
 {
 
 	enum MeshVertexFlag
@@ -63,6 +68,8 @@ namespace mimp
 		MIVF_ALL = (MIVF_POSITION | MIVF_NORMAL | MIVF_COLOR | MIVF_TEXEL1 | MIVF_TEXEL2 | MIVF_TEXEL3 | MIVF_TEXEL4 | MIVF_TANGENT | MIVF_BINORMAL | MIVF_BONE_WEIGHTING )
 	};
 
+	// A very fat vertex.  Used only for transferring data into an application.
+	// Ideally you should translate the enabled vertex interpolants into your own internal stream format.
 	class MeshVertex 
 	{
 	public:
@@ -101,28 +108,29 @@ namespace mimp
 			return ret;
 		}
 
-		physx::PxF32		mPos[3];
-		physx::PxF32		mNormal[3];
-		physx::PxU32		mColor;
-		physx::PxF32		mTexel1[2];
-		physx::PxF32		mTexel2[2];
-		physx::PxF32		mTexel3[2];
-		physx::PxF32		mTexel4[2];
-		physx::PxF32		mInterp1[4];
-		physx::PxF32		mInterp2[4];
-		physx::PxF32		mInterp3[4];
-		physx::PxF32		mInterp4[4];
-		physx::PxF32		mInterp5[4];
-		physx::PxF32		mInterp6[4];
-		physx::PxF32		mInterp7[4];
-		physx::PxF32		mInterp8[4];
-		physx::PxF32		mTangent[3];
-		physx::PxF32		mBiNormal[3];
-		physx::PxF32		mWeight[4];
-		unsigned short		mBone[4];
-		physx::PxF32		mRadius;
+		physx::PxVec3		mPos;			// The vertex position
+		physx::PxVec3		mNormal;		// The vetex normal
+		physx::PxU32		mColor;			// The vertex color as ARGB
+		physx::PxVec2		mTexel1;		// First texture co-ordinate
+		physx::PxVec2		mTexel2;		// Second texture co-ordinate
+		physx::PxVec2		mTexel3;		// Third texture co-ordinate
+		physx::PxVec2		mTexel4;		// Fourth texture co-ordinate
+		physx::PxVec4		mInterp1;		// Up to 8 arbitrary float4 interpolants
+		physx::PxVec4		mInterp2;
+		physx::PxVec4		mInterp3;
+		physx::PxVec4		mInterp4;
+		physx::PxVec4		mInterp5;
+		physx::PxVec4		mInterp6;
+		physx::PxVec4		mInterp7;
+		physx::PxVec4		mInterp8;
+		physx::PxVec3		mTangent;		// The tangent vector
+		physx::PxVec3		mBiNormal;		// The binaormal
+		physx::PxVec4		mWeight;		// Up to 4 floating point weight values; must add up to exactly 1.0
+		unsigned short		mBone[4];		// Up to 4 bone indices into a skeleton
+		physx::PxF32		mRadius;		// An optional radius of influence for this vertex
 	};
 
+	// A single bone in a skeleton
 	class MeshBone
 	{
 	public:
@@ -133,20 +141,13 @@ namespace mimp
 			Identity();
 		}
 
-		void Set(const char *name,physx::PxI32 parentIndex,const physx::PxF32 pos[3],const physx::PxF32 rot[4],const physx::PxF32 scale[3])
+		void Set(const char *name,physx::PxI32 parentIndex,const physx::PxVec3 &pos,const physx::PxQuat &rot,const physx::PxVec3 &scale)
 		{
 			mName = name;
 			mParentIndex = parentIndex;
-			mPosition[0] = pos[0];
-			mPosition[1] = pos[1];
-			mPosition[2] = pos[2];
-			mOrientation[0] = rot[0];
-			mOrientation[1] = rot[1];
-			mOrientation[2] = rot[2];
-			mOrientation[3] = rot[3];
-			mScale[0] = scale[0];
-			mScale[1] = scale[1];
-			mScale[2] = scale[2];
+			mPosition = pos;
+			mOrientation = rot;
+			mScale = scale;
 		}
 
 		void Identity(void)
@@ -155,10 +156,7 @@ namespace mimp
 			mPosition[1] = 0;
 			mPosition[2] = 0;
 
-			mOrientation[0] = 0;
-			mOrientation[1] = 0;
-			mOrientation[2] = 0;
-			mOrientation[3] = 1;
+			mOrientation = physx::PxQuat::createIdentity();
 
 			mScale[0] = 1;
 			mScale[1] = 1;
@@ -175,17 +173,18 @@ namespace mimp
 
 		physx::PxI32 GetParentIndex(void) const { return mParentIndex; };
 
-		const physx::PxF32 * GetPosition(void) const { return mPosition; };
-		const physx::PxF32 * GetOrientation(void) const { return mOrientation; };
-		const physx::PxF32 * GetScale(void) const { return mScale; };
+		const physx::PxVec3& GetPosition(void) const { return mPosition; };
+		const physx::PxQuat& GetOrientation(void) const { return mOrientation; };
+		const physx::PxVec3&  GetScale(void) const { return mScale; };
 
-		const char			*mName;
-		physx::PxI32		mParentIndex;          // array index of parent bone
-		physx::PxF32		mPosition[3];
-		physx::PxF32		mOrientation[4];
-		physx::PxF32		mScale[3];
+		const char			*mName;					// The name of the bone
+		physx::PxI32		mParentIndex;			// array index of parent bone; -1 means there is no parent
+		physx::PxVec3		mPosition;				// The bone position in skeleton space
+		physx::PxQuat		mOrientation;			// The orientation in parent relative skeleton space
+		physx::PxVec3		mScale;					// The uniform scale in parant relative skeleton space
 	};
 
+	// An association between a mesh and a particular bone in a skeleton.
 	class MeshEntry
 	{
 	public:
@@ -194,10 +193,11 @@ namespace mimp
 			mName = "";
 			mBone = 0;
 		}
-		const char *mName;
-		physx::PxI32         mBone;         // bone this mesh is associcated
+		const char		*mName;
+		physx::PxI32	mBone;         // bone this mesh is associated
 	};
 
+	// A completely specified skeleton with child/parent relationships.
 	class MeshSkeleton
 	{
 	public:
@@ -229,62 +229,42 @@ namespace mimp
 
 		const char * GetName(void) const { return mName; };
 
-		const char     *mName;
-		physx::PxI32             mBoneCount;
-		MeshBone       *mBones;
+		const char		*mName;		// The name of the skeleton
+		physx::PxI32	mBoneCount; // The number of bones in the skeleton
+		MeshBone		*mBones;	// The individual bones
 	};
 
-
+	// A single animation sample in skeleton space
 	class MeshAnimPose
 	{
 	public:
 		MeshAnimPose(void)
 		{
-			mPos[0] = 0;
-			mPos[1] = 0;
-			mPos[2] = 0;
-			mQuat[0] = 0;
-			mQuat[1] = 0;
-			mQuat[2] = 0;
-			mQuat[3] = 0;
-			mScale[0] = 1;
-			mScale[1] = 1;
-			mScale[2] = 1;
+			mPos = physx::PxVec3(0,0,0);
+			mQuat = physx::PxQuat::createIdentity();
+			mScale = physx::PxVec3(1,1,1);
 		}
 
-		void SetPose(const physx::PxF32 *pos,const physx::PxF32 *quat,const physx::PxF32 *scale)
+		void SetPose(const physx::PxVec3 &pos,const physx::PxQuat &quat,const physx::PxVec3 &scale)
 		{
-			mPos[0] = pos[0];
-			mPos[1] = pos[1];
-			mPos[2] = pos[2];
-			mQuat[0] = quat[0];
-			mQuat[1] = quat[1];
-			mQuat[2] = quat[2];
-			mQuat[3] = quat[3];
-			mScale[0] = scale[0];
-			mScale[1] = scale[1];
-			mScale[2] = scale[2];
+			mPos = pos;
+			mQuat = quat;
+			mScale = scale;
 		};
 
-		void Sample(physx::PxF32 *pos,physx::PxF32 *quat,physx::PxF32 *scale) const
+		void Sample(physx::PxVec3 &pos,physx::PxQuat &quat,physx::PxVec3 &scale) const
 		{
-			pos[0] = mPos[0];
-			pos[1] = mPos[1];
-			pos[2] = mPos[2];
-			quat[0] = mQuat[0];
-			quat[1] = mQuat[1];
-			quat[2] = mQuat[2];
-			quat[3] = mQuat[3];
-			scale[0] = mScale[0];
-			scale[1] = mScale[1];
-			scale[2] = mScale[2];
+			pos = mPos;
+			quat = mQuat;
+			scale = mScale;
 		}
 
-		physx::PxF32 mPos[3];
-		physx::PxF32 mQuat[4];
-		physx::PxF32 mScale[3];
+		physx::PxVec3 mPos;
+		physx::PxQuat mQuat;
+		physx::PxVec3 mScale;
 	};
 
+	// An array of animation samples for a particular track (bone)
 	class MeshAnimTrack
 	{
 	public:
@@ -302,7 +282,7 @@ namespace mimp
 			mName = name;
 		}
 
-		void SetPose(physx::PxI32 frame,const physx::PxF32 *pos,const physx::PxF32 *quat,const physx::PxF32 *scale)
+		void SetPose(physx::PxI32 frame,const physx::PxVec3 &pos,const physx::PxQuat &quat,const physx::PxVec3 &scale)
 		{
 			if ( frame >= 0 && frame < mFrameCount )
 				mPose[frame].SetPose(pos,quat,scale);
@@ -310,7 +290,7 @@ namespace mimp
 
 		const char * GetName(void) const { return mName; };
 
-		void SampleAnimation(physx::PxI32 frame,physx::PxF32 *pos,physx::PxF32 *quat,physx::PxF32 *scale) const
+		void SampleAnimation(physx::PxI32 frame,physx::PxVec3 &pos,physx::PxQuat &quat,physx::PxVec3 &scale) const
 		{
 			mPose[frame].Sample(pos,quat,scale);
 		}
@@ -326,6 +306,7 @@ namespace mimp
 		MeshAnimPose *mPose;
 	};
 
+	// A full set of sampled animation data
 	class MeshAnimation
 	{
 	public:
@@ -350,7 +331,7 @@ namespace mimp
 			mTracks[track]->SetName(name);
 		}
 
-		void SetTrackPose(physx::PxI32 track,physx::PxI32 frame,const physx::PxF32 *pos,const physx::PxF32 *quat,const physx::PxF32 *scale)
+		void SetTrackPose(physx::PxI32 track,physx::PxI32 frame,const physx::PxVec3 &pos,const physx::PxQuat &quat,const physx::PxVec3 &scale)
 		{
 			mTracks[track]->SetPose(frame,pos,quat,scale);
 		}
@@ -395,16 +376,16 @@ namespace mimp
 		physx::PxI32 GetFrameCount(void) const { return mFrameCount; };
 		physx::PxF32 GetDtime(void) const { return mDtime; };
 
-		const char *mName;
-		physx::PxI32         mTrackCount;
-		physx::PxI32         mFrameCount;
-		physx::PxF32       mDuration;
-		physx::PxF32       mDtime;
+		const char		*mName;
+		physx::PxI32	mTrackCount;
+		physx::PxI32	mFrameCount;
+		physx::PxF32	mDuration;
+		physx::PxF32	mDtime;
 		MeshAnimTrack **mTracks;
 	};
 
 
-
+	// A material associated with a sub-mesh
 	class MeshMaterial
 	{
 	public:
@@ -413,36 +394,11 @@ namespace mimp
 			mName = 0;
 			mMetaData = 0;
 		}
-		const char *mName;
-		const char *mMetaData;
+		const char *mName;				// The name of the material
+		const char *mMetaData;			// Optional application associated material meta-data
 	};
 
-	class MeshAABB
-	{
-	public:
-		MeshAABB(void)
-		{
-			mMin[0] = FLT_MAX;
-			mMin[1] = FLT_MAX;
-			mMin[2] = FLT_MAX;
-			mMax[0] = FLT_MIN;
-			mMax[1] = FLT_MIN;
-			mMax[2] = FLT_MIN;
-		}
-
-		void include(const physx::PxF32 pos[3])
-		{
-			if ( pos[0] < mMin[0] ) mMin[0] = pos[0];
-			if ( pos[1] < mMin[1] ) mMin[1] = pos[1];
-			if ( pos[2] < mMin[2] ) mMin[2] = pos[2];
-			if ( pos[0] > mMax[0] ) mMax[0] = pos[0];
-			if ( pos[1] > mMax[1] ) mMax[1] = pos[1];
-			if ( pos[2] > mMax[2] ) mMax[2] = pos[2];
-		}
-		physx::PxF32 mMin[3];
-		physx::PxF32 mMax[3];
-	};
-
+	// A single sub-mesh
 	class SubMesh
 	{
 	public:
@@ -455,14 +411,15 @@ namespace mimp
 			mIndices      = 0;
 		}
 
-		const char          *mMaterialName;
-		MeshMaterial        *mMaterial;
-		MeshAABB             mAABB;
-		physx::PxU32         mVertexFlags; // defines which vertex components are active.
-		physx::PxU32         mTriCount;    // number of triangles.
-		physx::PxU32        *mIndices;     // indexed triange list
+		const char			*mMaterialName;	// The name of the material used by this submesh
+		MeshMaterial		*mMaterial;		// The pointer to the mesh material; presuming the named lookup has been performed.
+		physx::PxBounds3	mAABB;			// The bounding volume for this submesh
+		physx::PxU32		mVertexFlags;	// defines which vertex components are active.
+		physx::PxU32		mTriCount;		// number of triangles.
+		physx::PxU32		*mIndices;		// indexed triangle list
 	};
 
+	// A single mesh
 	class Mesh
 	{
 	public:
@@ -477,16 +434,15 @@ namespace mimp
 			mVertexCount  = 0;
 			mVertices     = 0;
 		}
-		const char         *mName;
-		const char         *mSkeletonName;
-		MeshSkeleton       *mSkeleton; // the skeleton used by this mesh system.
-		MeshAABB            mAABB;
-		physx::PxU32        mSubMeshCount;
-		SubMesh           **mSubMeshes;
-
-		physx::PxU32       mVertexFlags;  // combined vertex usage flags for all sub-meshes
-		physx::PxU32       mVertexCount;
-		MeshVertex        *mVertices;
+		const char         *mName;				// The name of the mesh
+		const char         *mSkeletonName;		// The name of the skeleton used by this mesh
+		MeshSkeleton       *mSkeleton;			// pointer to skeleton if the named lookup has been performed.
+		physx::PxBounds3	mAABB;				// Bounding volume for this mesh
+		physx::PxU32        mSubMeshCount;		// The number of submeshes in this mesh
+		SubMesh           **mSubMeshes;			// Pointer to the submeshes
+		physx::PxU32       mVertexFlags;		// combined vertex usage flags for all sub-meshes
+		physx::PxU32       mVertexCount;		// The number of unique vertices in the vetex buffer
+		MeshVertex        *mVertices;			// The full fat vetices
 
 	};
 
@@ -501,11 +457,11 @@ namespace mimp
 			mHeight = 0;
 			mBPP = 0;
 		}
-		const char    *mName;
-		physx::PxU8 *mData;
-		physx::PxU32   mWidth;
-		physx::PxU32   mHeight;
-		physx::PxU32        mBPP;
+		const char		*mName;
+		physx::PxU8		*mData;
+		physx::PxU32	mWidth;
+		physx::PxU32	mHeight;
+		physx::PxU32	mBPP;
 	};
 
 	class MeshInstance
@@ -516,14 +472,14 @@ namespace mimp
 			mMeshName = 0;
 			mMesh     = 0;
 			mPosition[0] = mPosition[1] = mPosition[2] = 0;
-			mRotation[0] = mRotation[1] = mRotation[2] = mRotation[3] = 0;
-			mScale[0] = mScale[1] = mScale[2] = 0;
+			mRotation = physx::PxQuat::createIdentity();
+			mScale[0] = mScale[1] = mScale[2] = 1;
 		}
 		const char  *mMeshName;
 		Mesh        *mMesh;
-		physx::PxF32        mPosition[3];
-		physx::PxF32        mRotation[4]; //quaternion XYZW
-		physx::PxF32        mScale[3];
+		physx::PxVec3	mPosition;
+		physx::PxQuat	mRotation; //quaternion XYZW
+		physx::PxVec3	mScale;
 	};
 
 	class MeshUserData
@@ -564,12 +520,12 @@ namespace mimp
 			mTetraData  = 0;
 		}
 
-		const char  *mTetraName;
-		const char  *mMeshName;
-		MeshAABB     mAABB;
-		Mesh        *mMesh;
-		physx::PxU32 mTetraCount; // number of tetrahedrons
-		physx::PxF32       *mTetraData;
+		const char			*mTetraName;
+		const char			*mMeshName;
+		physx::PxBounds3	mAABB;
+		Mesh				*mMesh;
+		physx::PxU32		mTetraCount; // number of tetrahedrons
+		physx::PxF32		*mTetraData;
 	};
 
 #define MESH_SYSTEM_VERSION 1 // version number of this data structure, used for binary serialization
@@ -593,18 +549,15 @@ namespace mimp
 			mLocalPosition[0] = 0;
 			mLocalPosition[1] = 0;
 			mLocalPosition[2] = 0;
-			mLocalOrientation[0] = 0;
-			mLocalOrientation[1] = 0;
-			mLocalOrientation[2] = 0;
-			mLocalOrientation[3] = 1;
+			mLocalOrientation = physx::PxQuat::createIdentity();
 		}
 
 		MeshCollisionType getType(void) const { return mType; };
 
-		MeshCollisionType    mType;
-		const char            *mName;  // the bone this collision geometry is associated with.
-		physx::PxF32                mLocalPosition[3];
-		physx::PxF32                mLocalOrientation[4];
+		MeshCollisionType	mType;
+		const char			*mName;  // the bone this collision geometry is associated with.
+		physx::PxVec3		mLocalPosition;
+		physx::PxQuat		mLocalOrientation;
 	};
 
 	class MeshCollisionBox : public MeshCollision 
@@ -681,21 +634,18 @@ namespace mimp
 			mPosition[0] = 0;
 			mPosition[1] = 0;
 			mPosition[2] = 0;
-			mOrientation[0] = 0;
-			mOrientation[1] = 0;
-			mOrientation[2] = 0;
-			mOrientation[3] = 1;
+			mOrientation = physx::PxQuat::createIdentity();
 			mSolverCount = 4;
 			mAwake = true;
 		}
-		const char        *mName;
-		const char        *mInfo;
-		physx::PxU32            mCollisionCount;
-		MeshCollision    **mCollisionGeometry;
-		physx::PxF32            mPosition[3];
-		physx::PxF32            mOrientation[4];
-		physx::PxU32            mSolverCount;
-		bool            mAwake;
+		const char		*mName;
+		const char		*mInfo;
+		physx::PxU32	mCollisionCount;
+		MeshCollision	**mCollisionGeometry;
+		physx::PxVec3	mPosition;
+		physx::PxQuat	mOrientation;
+		physx::PxU32	mSolverCount;
+		bool			mAwake;
 	};
 
 	class MeshSimpleJoint
@@ -720,15 +670,15 @@ namespace mimp
 			mZaxis[1] = 0;
 			mZaxis[2] = 1;
 		}
-		const char *mName;            // name of joint; defines which mesh collision representation it is connected to.
-		const char *mParent;        // name of parent, defines which mesh collision representation this joint connects to.
-		physx::PxF32        mOffset[3];        // The offset of the joint from the root bone.
-		physx::PxF32        mXaxis[3];        // The axis of the joint from the root bone
-		physx::PxF32        mZaxis[3];        // The normal of the joint relative to the root bone.
-		physx::PxF32        mTwistLow;        // The low twist limit in radians
-		physx::PxF32        mTwistHigh;        // The high twist limit in radians
-		physx::PxF32        mSwing1;        // The swing1 limit
-		physx::PxF32        mSwing2;        // The swing2 limit
+		const char			*mName;            // name of joint; defines which mesh collision representation it is connected to.
+		const char			*mParent;        // name of parent, defines which mesh collision representation this joint connects to.
+		physx::PxVec3		mOffset;        // The offset of the joint from the root bone.
+		physx::PxVec3		mXaxis;        // The axis of the joint from the root bone
+		physx::PxVec3		mZaxis;        // The normal of the joint relative to the root bone.
+		physx::PxF32		mTwistLow;        // The low twist limit in radians
+		physx::PxF32		mTwistHigh;        // The high twist limit in radians
+		physx::PxF32		mSwing1;        // The swing1 limit
+		physx::PxF32		mSwing2;        // The swing2 limit
 	};
 
 	class MeshPairCollision
@@ -772,20 +722,18 @@ namespace mimp
 			mMeshPairCollisionCount = 0;
 			mMeshPairCollisions = NULL;
 
-			mPlane[0] = 1;
-			mPlane[1] = 0;
-			mPlane[2] = 0;
-			mPlane[3] = 0;
+			mPlane.n = physx::PxVec3(1,0,0);
+			mPlane.d = 0;
 		}
 
 
-		const char			*mAssetName;
-		const char			*mAssetInfo;
-		physx::PxI32		mMeshSystemVersion;
-		physx::PxI32		mAssetVersion;
-		MeshAABB			mAABB;
-		physx::PxU32		mTextureCount;          // Are textures necessary? [rgd].
-		MeshRawTexture		**mTextures;              // Texture storage in mesh data is rare, and the name is simply an attribute of the material
+		const char			*mAssetName;			// The name of this MeshSystem asset
+		const char			*mAssetInfo;			// Optional additional user tagged information associated with this asset.
+		physx::PxI32		mMeshSystemVersion;		// The version number of this mesh system.
+		physx::PxI32		mAssetVersion;			// The asset version number.
+		physx::PxBounds3	mAABB;					// The axis aligned bounding volume of this asset.
+		physx::PxU32		mTextureCount;			// The number of texture ins this asset.
+		MeshRawTexture		**mTextures;			// Texture storage in mesh data is rare, and the name is simply an attribute of the material
 
 		physx::PxU32		mTetraMeshCount;        // number of tetrahedral meshes
 		MeshTetra			**mTetraMeshes;           // tetraheadral meshes
@@ -820,7 +768,7 @@ namespace mimp
 		physx::PxU32		mMeshPairCollisionCount;
 		MeshPairCollision	*mMeshPairCollisions;
 
-		physx::PxF32		mPlane[4];
+		physx::PxPlane		mPlane;
 
 	};
 

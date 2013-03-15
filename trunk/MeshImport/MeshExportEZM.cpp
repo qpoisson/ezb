@@ -37,7 +37,7 @@
 
 #pragma warning(disable:4996)
 
-namespace mimp
+namespace ezmesh
 {
 
 static const char *cleanAttribute(const char *attribute)
@@ -125,7 +125,7 @@ static const char *getStr(const char *str)
 	return str;
 }
 
-static void printAABB(FILE * /*fph*/,const MeshAABB & /*a*/)
+static void printAABB(FILE * /*fph*/,const physx::PxBounds3 & /*a*/)
 {
 	// fprintf(fph," <MeshAABB min=\"%s,%s,%s\" max=\"%s,%s,%s\"/>\r\n", FloatString(a.mMin[0]), FloatString(a.mMin[1]), FloatString(a.mMin[2]), FloatString(a.mMax[0]), FloatString(a.mMax[1]), FloatString(a.mMax[2]) );
 }
@@ -157,10 +157,10 @@ static void print(FILE *fph,MeshBone &b,MeshSkeleton *s)
 		fprintf(fph,"        <Bone name=\"%s\" parent=\"%s\" orientation=\"%s %s %s %s\" position=\"%s %s %s\" scale=\"%s %s %s\"/>\r\n",
 			b.mName,
 			parent,
-			FloatString(b.mOrientation[0]),
-			FloatString(b.mOrientation[1]),
-			FloatString(b.mOrientation[2]),
-			FloatString(b.mOrientation[3]),
+			FloatString(b.mOrientation.x),
+			FloatString(b.mOrientation.y),
+			FloatString(b.mOrientation.z),
+			FloatString(b.mOrientation.w),
 			FloatString(b.mPosition[0]),
 			FloatString(b.mPosition[1]),
 			FloatString(b.mPosition[2]),
@@ -172,10 +172,10 @@ static void print(FILE *fph,MeshBone &b,MeshSkeleton *s)
 	{
 		fprintf(fph,"        <Bone name=\"%s\" orientation=\"%s %s %s %s\" position=\"%s %s %s\" scale=\"%s %s %s\"/>\r\n",
 			b.mName,
-			FloatString(b.mOrientation[0]),
-			FloatString(b.mOrientation[1]),
-			FloatString(b.mOrientation[2]),
-			FloatString(b.mOrientation[3]),
+			FloatString(b.mOrientation.x),
+			FloatString(b.mOrientation.y),
+			FloatString(b.mOrientation.z),
+			FloatString(b.mOrientation.w),
 			FloatString(b.mPosition[0]),
 			FloatString(b.mPosition[1]),
 			FloatString(b.mPosition[2]),
@@ -201,10 +201,10 @@ static void print(FILE *fph,const MeshAnimPose &p)
 		FloatString(p.mPos[0]),
 		FloatString(p.mPos[1]),
 		FloatString(p.mPos[2]),
-		FloatString(p.mQuat[0]),
-		FloatString(p.mQuat[1]),
-		FloatString(p.mQuat[2]),
-		FloatString(p.mQuat[3]),
+		FloatString(p.mQuat.x),
+		FloatString(p.mQuat.y),
+		FloatString(p.mQuat.z),
+		FloatString(p.mQuat.w),
 		FloatString(p.mScale[0]),
 		FloatString(p.mScale[1]),
 		FloatString(p.mScale[2]) );
@@ -523,10 +523,10 @@ static void print(FILE *fph,MeshInstance &m)
 		FloatString( m.mPosition[0] ),
 		FloatString( m.mPosition[1] ),
 		FloatString( m.mPosition[2] ),
-		FloatString( m.mRotation[0] ),
-		FloatString( m.mRotation[1] ),
-		FloatString( m.mRotation[2] ),
-		FloatString( m.mRotation[3] ),
+		FloatString( m.mRotation.x ),
+		FloatString( m.mRotation.y ),
+		FloatString( m.mRotation.z ),
+		FloatString( m.mRotation.w ),
 		FloatString( m.mScale[0] ),
 		FloatString( m.mScale[1] ),
 		FloatString( m.mScale[2] ) );

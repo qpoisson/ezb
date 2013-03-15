@@ -32,7 +32,7 @@
 
 #define MESH_IMPORT_EZB_H
 
-namespace mimp
+namespace ezmesh
 {
 
 class MeshSystem;
@@ -51,6 +51,6 @@ protected:
 
 MeshImportEZB *createMeshImportEZB(const void *data);
 
-}; // end of mimp namespace
+}; // end of ezmesh namespace
 
 #endif

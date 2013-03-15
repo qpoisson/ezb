@@ -63,10 +63,10 @@ void main(int argc,const char **argv)
 					if ( r == 1 )
 					{
 						printf("Successfully read input file.\r\n");
-						mimp::MeshImportEZB *ezb = mimp::createMeshImportEZB(mem);
+						ezmesh::MeshImportEZB *ezb = ezmesh::createMeshImportEZB(mem);
 						if ( ezb )
 						{
-							mimp::MeshSystem *ms = ezb->getMeshSystem();
+							ezmesh::MeshSystem *ms = ezb->getMeshSystem();
 							if ( ms )
 							{
 								printf("Successfully loaded the MeshSystem.\r\n");
