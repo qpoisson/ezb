@@ -30,11 +30,9 @@
 */
 #include "MeshExportEZM.h"
 #include "EZMesh.h"
-#include "foundation/PxIntrinsics.h"
-#include "foundation/PxString.h"
 
 #include <stdio.h>
-
+#include <string.h>
 #pragma warning(disable:4996)
 
 namespace ezmesh
@@ -75,12 +73,7 @@ static const char * FloatString(physx::PxF32 v,bool binary=false)
 	index++;
 	if (index == 16 ) index = 0;
 
-	if ( !physx::intrinsics::isFinite(v) )
-  {
-	PX_ALWAYS_ASSERT();
-	strcpy(ret,"0"); // not a valid number!
-  }
-	else if ( v == 1 )
+	if ( v == 1 )
 	{
 		strcpy(ret,"1");
 	}
@@ -127,7 +120,7 @@ static const char *getStr(const char *str)
 
 static void printAABB(FILE * /*fph*/,const physx::PxBounds3 & /*a*/)
 {
-	// fprintf(fph," <MeshAABB min=\"%s,%s,%s\" max=\"%s,%s,%s\"/>\r\n", FloatString(a.mMin[0]), FloatString(a.mMin[1]), FloatString(a.mMin[2]), FloatString(a.mMax[0]), FloatString(a.mMax[1]), FloatString(a.mMax[2]) );
+	// fprintf(fph," <MeshAABB min=\"%s,%s,%s\" max=\"%s,%s,%s\"/>\r\n", FloatString(a.mMin.x), FloatString(a.mMin.y), FloatString(a.mMin.z), FloatString(a.mMax.x), FloatString(a.mMax.y), FloatString(a.mMax.z) );
 }
 
 static void print(FILE * /*fph*/,MeshRawTexture * /*t*/)
@@ -161,12 +154,12 @@ static void print(FILE *fph,MeshBone &b,MeshSkeleton *s)
 			FloatString(b.mOrientation.y),
 			FloatString(b.mOrientation.z),
 			FloatString(b.mOrientation.w),
-			FloatString(b.mPosition[0]),
-			FloatString(b.mPosition[1]),
-			FloatString(b.mPosition[2]),
-			FloatString(b.mScale[0]),
-			FloatString(b.mScale[1]),
-			FloatString(b.mScale[2]) );
+			FloatString(b.mPosition.x),
+			FloatString(b.mPosition.y),
+			FloatString(b.mPosition.z),
+			FloatString(b.mScale.x),
+			FloatString(b.mScale.y),
+			FloatString(b.mScale.z) );
 	}
 	else
 	{
@@ -176,12 +169,12 @@ static void print(FILE *fph,MeshBone &b,MeshSkeleton *s)
 			FloatString(b.mOrientation.y),
 			FloatString(b.mOrientation.z),
 			FloatString(b.mOrientation.w),
-			FloatString(b.mPosition[0]),
-			FloatString(b.mPosition[1]),
-			FloatString(b.mPosition[2]),
-			FloatString(b.mScale[0]),
-			FloatString(b.mScale[1]),
-			FloatString(b.mScale[2]) );
+			FloatString(b.mPosition.x),
+			FloatString(b.mPosition.y),
+			FloatString(b.mPosition.z),
+			FloatString(b.mScale.x),
+			FloatString(b.mScale.y),
+			FloatString(b.mScale.z) );
 	}
 }
 
@@ -198,16 +191,16 @@ static void print(FILE *fph,MeshSkeleton *s)
 static void print(FILE *fph,const MeshAnimPose &p)
 {
 	fprintf(fph,"      %s %s %s   %s %s %s %s   %s %s %s,\r\n", 
-		FloatString(p.mPos[0]),
-		FloatString(p.mPos[1]),
-		FloatString(p.mPos[2]),
+		FloatString(p.mPos.x),
+		FloatString(p.mPos.y),
+		FloatString(p.mPos.z),
 		FloatString(p.mQuat.x),
 		FloatString(p.mQuat.y),
 		FloatString(p.mQuat.z),
 		FloatString(p.mQuat.w),
-		FloatString(p.mScale[0]),
-		FloatString(p.mScale[1]),
-		FloatString(p.mScale[2]) );
+		FloatString(p.mScale.x),
+		FloatString(p.mScale.y),
+		FloatString(p.mScale.z) );
 }
 
 static void print(FILE *fph,MeshAnimTrack *track)
@@ -342,13 +335,13 @@ static void printVertex(FILE *fph,physx::PxU32 flags,const MeshVertex &v,physx::
 
 	if ( flags & MIVF_POSITION )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mPos[0]), FloatString(v.mPos[1]), FloatString(v.mPos[2]) );
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mPos.x), FloatString(v.mPos.y), FloatString(v.mPos.z) );
 		strcat_s(scratch,1024,temp);
 	}
 
 	if ( flags & MIVF_NORMAL )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mNormal[0]), FloatString(v.mNormal[1]), FloatString(v.mNormal[2]) );
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mNormal.x), FloatString(v.mNormal.y), FloatString(v.mNormal.z) );
 		strcat_s(scratch,1024,temp);
 	}
 
@@ -359,79 +352,79 @@ static void printVertex(FILE *fph,physx::PxU32 flags,const MeshVertex &v,physx::
 	}
 	if ( flags & MIVF_TEXEL1 )
 	{
-		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel1[0]), FloatString(v.mTexel1[1]) );
+		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel1.x), FloatString(v.mTexel1.y) );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_TEXEL2 )
 	{
-		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel2[0]), FloatString(v.mTexel2[1]) );
+		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel2.x), FloatString(v.mTexel2.y) );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_TEXEL3 )
 	{
-		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel3[0]), FloatString(v.mTexel3[1]) );
+		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel3.x), FloatString(v.mTexel3.y) );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_TEXEL4 )
 	{
-		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel4[0]), FloatString(v.mTexel4[1]) );
+		sprintf_s(temp,1024,"%s %s ", FloatString(v.mTexel4.x), FloatString(v.mTexel4.y) );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_TANGENT )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mTangent[0]), FloatString(v.mTangent[1]), FloatString(v.mTangent[2]) );
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mTangent.x), FloatString(v.mTangent.y), FloatString(v.mTangent.z) );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_BINORMAL )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mBiNormal[0]), FloatString(v.mBiNormal[1]), FloatString(v.mBiNormal[2]) );
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mBiNormal.x), FloatString(v.mBiNormal.y), FloatString(v.mBiNormal.z) );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_BONE_WEIGHTING )
 	{
-		sprintf_s(temp,1024,"%s %s %s %s ", FloatString(v.mWeight[0]), FloatString(v.mWeight[1]), FloatString(v.mWeight[2]), FloatString(v.mWeight[3]) );
+		sprintf_s(temp,1024,"%s %s %s %s ", FloatString(v.mWeight.x), FloatString(v.mWeight.y), FloatString(v.mWeight.z), FloatString(v.mWeight.w) );
 		strcat_s(scratch,1024,temp);
 		sprintf_s(temp,1024,"%d %d %d %d ", v.mBone[0], v.mBone[1], v.mBone[2], v.mBone[3] );
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP1 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp1[0]), FloatString(v.mInterp1[1]), FloatString(v.mInterp1[2]) , FloatString(v.mInterp1[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp1.x), FloatString(v.mInterp1.y), FloatString(v.mInterp1.z) , FloatString(v.mInterp1.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP2 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp2[0]), FloatString(v.mInterp2[1]), FloatString(v.mInterp2[2]) , FloatString(v.mInterp2[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp2.x), FloatString(v.mInterp2.y), FloatString(v.mInterp2.z) , FloatString(v.mInterp2.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP3 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp3[0]), FloatString(v.mInterp3[1]), FloatString(v.mInterp3[2]) , FloatString(v.mInterp3[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp3.x), FloatString(v.mInterp3.y), FloatString(v.mInterp3.z) , FloatString(v.mInterp3.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP4 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp4[0]), FloatString(v.mInterp4[1]), FloatString(v.mInterp4[2]) , FloatString(v.mInterp4[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp4.x), FloatString(v.mInterp4.y), FloatString(v.mInterp4.z) , FloatString(v.mInterp4.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP5 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp5[0]), FloatString(v.mInterp5[1]), FloatString(v.mInterp5[2]) , FloatString(v.mInterp5[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp5.x), FloatString(v.mInterp5.y), FloatString(v.mInterp5.z) , FloatString(v.mInterp5.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP6 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp6[0]), FloatString(v.mInterp6[1]), FloatString(v.mInterp6[2]) , FloatString(v.mInterp6[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp6.x), FloatString(v.mInterp6.y), FloatString(v.mInterp6.z) , FloatString(v.mInterp6.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP7 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp7[0]), FloatString(v.mInterp7[1]), FloatString(v.mInterp7[2]) , FloatString(v.mInterp7[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp7.x), FloatString(v.mInterp7.y), FloatString(v.mInterp7.z) , FloatString(v.mInterp7.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_INTERP8 )
 	{
-		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp8[0]), FloatString(v.mInterp8[1]), FloatString(v.mInterp8[2]) , FloatString(v.mInterp8[3]));
+		sprintf_s(temp,1024,"%s %s %s ", FloatString(v.mInterp8.x), FloatString(v.mInterp8.y), FloatString(v.mInterp8.z) , FloatString(v.mInterp8.w));
 		strcat_s(scratch,1024,temp);
 	}
 	if ( flags & MIVF_RADIUS )
@@ -520,16 +513,16 @@ static void print(FILE *fph,MeshInstance &m)
 {
 	fprintf(fph,"        <MeshInstance mesh=\"%s\" position=\"%s,%s,%s\" rotation=\"%s,%s,%s,%s\" scale=\"%s,%s,%s\"/>\r\n",
 		m.mMeshName,
-		FloatString( m.mPosition[0] ),
-		FloatString( m.mPosition[1] ),
-		FloatString( m.mPosition[2] ),
+		FloatString( m.mPosition.x ),
+		FloatString( m.mPosition.y ),
+		FloatString( m.mPosition.z ),
 		FloatString( m.mRotation.x ),
 		FloatString( m.mRotation.y ),
 		FloatString( m.mRotation.z ),
 		FloatString( m.mRotation.w ),
-		FloatString( m.mScale[0] ),
-		FloatString( m.mScale[1] ),
-		FloatString( m.mScale[2] ) );
+		FloatString( m.mScale.x ),
+		FloatString( m.mScale.y ),
+		FloatString( m.mScale.z ) );
 }
 
 #if 0 // export of collision types not yet fully implemented
@@ -581,7 +574,7 @@ static void print(FILE *fph,MeshCollisionConvex *m)
 				newRow = false;
 			}
 
-			fprintf(fph,"%s %s %s, ",FloatString(p[0]), FloatString(p[1]), FloatString(p[2]) );
+			fprintf(fph,"%s %s %s, ",FloatString(p.x), FloatString(p.y), FloatString(p.z) );
 			if ( (i&7) == 0 )
 			{
 				fprintf(fph,"\r\n");
@@ -620,10 +613,10 @@ static void print(FILE *fph,MeshCollision *m)
 #if 0
 	fprintf(fph,"        <MeshCollision name=\"%s\" type=\"%s\" transform=\"%s %s %s %s   %s %s %s %s   %s %s %s %s   %s %s %s %s\">\r\n",
 		m->mName,getTypeString(m->mType),
-		FloatString( m->mTransform[0] ),
-		FloatString( m->mTransform[1] ),
-		FloatString( m->mTransform[2] ),
-		FloatString( m->mTransform[3] ),
+		FloatString( m->mTransform.x ),
+		FloatString( m->mTransform.y ),
+		FloatString( m->mTransform.z ),
+		FloatString( m->mTransform.w ),
 		FloatString( m->mTransform[4] ),
 		FloatString( m->mTransform[5] ),
 		FloatString( m->mTransform[6] ),

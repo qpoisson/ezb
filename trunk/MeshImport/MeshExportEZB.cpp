@@ -31,6 +31,7 @@
 #include "MeshExportEZB.h"
 #include "EZMesh.h"
 #include <stdio.h>
+#include <string.h>
 
 #pragma warning(disable:4996)
 
@@ -94,6 +95,8 @@ namespace ezmesh
 				one_byte = data[3]; data[3] = data[4]; data[4] = one_byte;
 			}
 		}
+
+
 
 
 		PX_INLINE OutputStream& operator<<(const char *str)
@@ -202,12 +205,12 @@ namespace ezmesh
 
 	static void serialize(OutputStream &stream,const physx::PxBounds3 &aabb)
 {
-	stream << aabb.minimum[0];
-	stream << aabb.minimum[1];
-	stream << aabb.minimum[2];
-	stream << aabb.maximum[0];
-	stream << aabb.maximum[1];
-	stream << aabb.maximum[2];
+	stream << aabb.minimum.x;
+	stream << aabb.minimum.y;
+	stream << aabb.minimum.z;
+	stream << aabb.maximum.x;
+	stream << aabb.maximum.y;
+	stream << aabb.maximum.z;
 }
 
 static void serialize(OutputStream &stream,const MeshRawTexture &m)
@@ -234,16 +237,16 @@ static void serialize(OutputStream &stream,const MeshBone &m)
 {
 	stream << m.mName;
 	stream << m.mParentIndex;
-	stream << m.mPosition[0];
-	stream << m.mPosition[1];
-	stream << m.mPosition[2];
+	stream << m.mPosition.x;
+	stream << m.mPosition.y;
+	stream << m.mPosition.z;
 	stream << m.mOrientation.x;
 	stream << m.mOrientation.y;
 	stream << m.mOrientation.z;
 	stream << m.mOrientation.w;
-	stream << m.mScale[0];
-	stream << m.mScale[1];
-	stream << m.mScale[2];
+	stream << m.mScale.x;
+	stream << m.mScale.y;
+	stream << m.mScale.z;
 }
 
 static void serialize(OutputStream &stream,const MeshSkeleton &m)
@@ -259,16 +262,16 @@ static void serialize(OutputStream &stream,const MeshSkeleton &m)
 
 static void serialize(OutputStream &stream,const MeshAnimPose &m)
 {
-	stream << m.mPos[0];
-	stream << m.mPos[1];
-	stream << m.mPos[2];
+	stream << m.mPos.x;
+	stream << m.mPos.y;
+	stream << m.mPos.z;
 	stream << m.mQuat.x;
 	stream << m.mQuat.y;
 	stream << m.mQuat.z;
 	stream << m.mQuat.w;
-	stream << m.mScale[0];
-	stream << m.mScale[1];
-	stream << m.mScale[2];
+	stream << m.mScale.x;
+	stream << m.mScale.y;
+	stream << m.mScale.z;
 }
 
 static void serialize(OutputStream &stream,const MeshAnimTrack &m)
@@ -337,15 +340,15 @@ static void serialize(OutputStream &stream,const MeshVertex &m,physx::PxU32 vert
 
 	if ( vertexFlags & MIVF_POSITION )
 	{
-		stream << m.mPos[0];
-		stream << m.mPos[1];
-		stream << m.mPos[2];
+		stream << m.mPos.x;
+		stream << m.mPos.y;
+		stream << m.mPos.z;
 	}
 	if ( vertexFlags & MIVF_NORMAL )
 	{
-		stream << m.mNormal[0];
-		stream << m.mNormal[1];
-		stream << m.mNormal[2];
+		stream << m.mNormal.x;
+		stream << m.mNormal.y;
+		stream << m.mNormal.z;
 	}
 	if ( vertexFlags & MIVF_COLOR )
 	{
@@ -353,35 +356,35 @@ static void serialize(OutputStream &stream,const MeshVertex &m,physx::PxU32 vert
 	}
 	if ( vertexFlags & MIVF_TEXEL1 )
 	{
-		stream << m.mTexel1[0];
-		stream << m.mTexel1[1];
+		stream << m.mTexel1.x;
+		stream << m.mTexel1.y;
 	}
 	if ( vertexFlags & MIVF_TEXEL2 )
 	{
-		stream << m.mTexel2[0];
-		stream << m.mTexel2[1];
+		stream << m.mTexel2.x;
+		stream << m.mTexel2.y;
 	}
 	if ( vertexFlags & MIVF_TEXEL3 )
 	{
-		stream << m.mTexel3[0];
-		stream << m.mTexel3[1];
+		stream << m.mTexel3.x;
+		stream << m.mTexel3.y;
 	}
 	if ( vertexFlags & MIVF_TEXEL4 )
 	{
-		stream << m.mTexel4[0];
-		stream << m.mTexel4[1];
+		stream << m.mTexel4.x;
+		stream << m.mTexel4.y;
 	}
 	if ( vertexFlags & MIVF_TANGENT )
 	{
-		stream << m.mTangent[0];
-		stream << m.mTangent[1];
-		stream << m.mTangent[2];
+		stream << m.mTangent.x;
+		stream << m.mTangent.y;
+		stream << m.mTangent.z;
 	}
 	if ( vertexFlags & MIVF_BINORMAL )
 	{
-		stream << m.mBiNormal[0];
-		stream << m.mBiNormal[1];
-		stream << m.mBiNormal[2];
+		stream << m.mBiNormal.x;
+		stream << m.mBiNormal.y;
+		stream << m.mBiNormal.z;
 	}
 	if ( vertexFlags & MIVF_BONE_WEIGHTING  )
 	{
@@ -389,10 +392,10 @@ static void serialize(OutputStream &stream,const MeshVertex &m,physx::PxU32 vert
 		stream << m.mBone[1];
 		stream << m.mBone[2];
 		stream << m.mBone[3];
-		stream << m.mWeight[0];
-		stream << m.mWeight[1];
-		stream << m.mWeight[2];
-		stream << m.mWeight[3];
+		stream << m.mWeight.x;
+		stream << m.mWeight.y;
+		stream << m.mWeight.z;
+		stream << m.mWeight.w;
 	}
 	if ( vertexFlags & MIVF_RADIUS )
 	{
@@ -400,59 +403,59 @@ static void serialize(OutputStream &stream,const MeshVertex &m,physx::PxU32 vert
 	}
 	if ( vertexFlags & MIVF_INTERP1 )
 	{
-		stream << m.mInterp1[0];
-		stream << m.mInterp1[1];
-		stream << m.mInterp1[2];
-		stream << m.mInterp1[3];
+		stream << m.mInterp1.x;
+		stream << m.mInterp1.y;
+		stream << m.mInterp1.z;
+		stream << m.mInterp1.w;
 	}
 	if ( vertexFlags & MIVF_INTERP2 )
 	{
-		stream << m.mInterp2[0];
-		stream << m.mInterp2[1];
-		stream << m.mInterp2[2];
-		stream << m.mInterp2[3];
+		stream << m.mInterp2.x;
+		stream << m.mInterp2.y;
+		stream << m.mInterp2.z;
+		stream << m.mInterp2.w;
 	}
 	if ( vertexFlags & MIVF_INTERP3 )
 	{
-		stream << m.mInterp3[0];
-		stream << m.mInterp3[1];
-		stream << m.mInterp3[2];
-		stream << m.mInterp3[3];
+		stream << m.mInterp3.x;
+		stream << m.mInterp3.y;
+		stream << m.mInterp3.z;
+		stream << m.mInterp3.w;
 	}
 	if ( vertexFlags & MIVF_INTERP4 )
 	{
-		stream << m.mInterp4[0];
-		stream << m.mInterp4[1];
-		stream << m.mInterp4[2];
-		stream << m.mInterp4[3];
+		stream << m.mInterp4.x;
+		stream << m.mInterp4.y;
+		stream << m.mInterp4.z;
+		stream << m.mInterp4.w;
 	}
 	if ( vertexFlags & MIVF_INTERP5 )
 	{
-		stream << m.mInterp5[0];
-		stream << m.mInterp5[1];
-		stream << m.mInterp5[2];
-		stream << m.mInterp5[3];
+		stream << m.mInterp5.x;
+		stream << m.mInterp5.y;
+		stream << m.mInterp5.z;
+		stream << m.mInterp5.w;
 	}
 	if ( vertexFlags & MIVF_INTERP6 )
 	{
-		stream << m.mInterp6[0];
-		stream << m.mInterp6[1];
-		stream << m.mInterp6[2];
-		stream << m.mInterp6[3];
+		stream << m.mInterp6.x;
+		stream << m.mInterp6.y;
+		stream << m.mInterp6.z;
+		stream << m.mInterp6.w;
 	}
 	if ( vertexFlags & MIVF_INTERP7 )
 	{
-		stream << m.mInterp7[0];
-		stream << m.mInterp7[1];
-		stream << m.mInterp7[2];
-		stream << m.mInterp7[3];
+		stream << m.mInterp7.x;
+		stream << m.mInterp7.y;
+		stream << m.mInterp7.z;
+		stream << m.mInterp7.w;
 	}
 	if ( vertexFlags & MIVF_INTERP8 )
 	{
-		stream << m.mInterp8[0];
-		stream << m.mInterp8[1];
-		stream << m.mInterp8[2];
-		stream << m.mInterp8[3];
+		stream << m.mInterp8.x;
+		stream << m.mInterp8.y;
+		stream << m.mInterp8.z;
+		stream << m.mInterp8.w;
 	}
 
 
@@ -482,16 +485,16 @@ static void serialize(OutputStream &stream,const Mesh &m)
 static void serialize(OutputStream &stream,const MeshInstance &m)
 {
 	stream << m.mMeshName;
-	stream << m.mPosition[0];
-	stream << m.mPosition[1];
-	stream << m.mPosition[2];
+	stream << m.mPosition.x;
+	stream << m.mPosition.y;
+	stream << m.mPosition.z;
 	stream << m.mRotation.x;
 	stream << m.mRotation.y;
 	stream << m.mRotation.z;
 	stream << m.mRotation.w;
-	stream << m.mScale[0];
-	stream << m.mScale[1];
-	stream << m.mScale[2];
+	stream << m.mScale.x;
+	stream << m.mScale.y;
+	stream << m.mScale.z;
 }
 
 static void serialize(OutputStream & /*stream*/,const MeshCollisionRepresentation & /*m*/)

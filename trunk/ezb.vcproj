@@ -117,6 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="./"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -194,63 +195,7 @@
 			Name="Foundation"
 			>
 			<File
-				RelativePath=".\foundation\Px.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxAllocatorCallback.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxAssert.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxBitAndData.h"
-				>
-			</File>
-			<File
 				RelativePath=".\foundation\PxBounds3.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxBroadcastingAllocator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxErrorCallback.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxErrors.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxFlags.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxFoundation.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxIntrinsics.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxMat33.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxMat44.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxMath.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxMemory.h"
 				>
 			</File>
 			<File
@@ -270,22 +215,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\foundation\PxStrideIterator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxString.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxTransform.h"
-				>
-			</File>
-			<File
-				RelativePath=".\foundation\PxUnionCast.h"
-				>
-			</File>
-			<File
 				RelativePath=".\foundation\PxVec2.h"
 				>
 			</File>
@@ -297,22 +226,6 @@
 				RelativePath=".\foundation\PxVec4.h"
 				>
 			</File>
-			<File
-				RelativePath=".\foundation\PxVersionNumber.h"
-				>
-			</File>
-			<Filter
-				Name="Windows"
-				>
-				<File
-					RelativePath=".\foundation\windows\PxWindowsIntrinsics.h"
-					>
-				</File>
-				<File
-					RelativePath=".\foundation\windows\PxWindowsString.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="MeshImport"
