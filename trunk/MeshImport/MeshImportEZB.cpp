@@ -1,5 +1,5 @@
 #include "MeshImportEZB.h"
-#include "MeshImport.h"
+#include "EZMesh.h"
 #include <new.h>
 
 #define MESH_BINARY_VERSION 101

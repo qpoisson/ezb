@@ -1,5 +1,5 @@
 #include "MeshExportEZM.h"
-#include "MeshImport.h"
+#include "EZMesh.h"
 #include "foundation/PxIntrinsics.h"
 #include "foundation/PxString.h"
 

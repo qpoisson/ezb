@@ -318,15 +318,23 @@
 			Name="MeshImport"
 			>
 			<File
+				RelativePath=".\MeshImport\EZMesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshImport\MeshExportEZB.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshImport\MeshExportEZB.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MeshImport\MeshExportEZM.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\MeshImport\MeshExportEZM.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MeshImport\MeshImport.h"
 				>
 			</File>
 			<File
