@@ -33,7 +33,7 @@
 #define MESH_EXPORT_EZB_H
 
 
-namespace mimp
+namespace ezmesh
 {
 
 class MeshSystem;

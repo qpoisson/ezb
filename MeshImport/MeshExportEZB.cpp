@@ -34,7 +34,7 @@
 
 #pragma warning(disable:4996)
 
-namespace mimp
+namespace ezmesh
 {
 
 	/**
@@ -200,14 +200,14 @@ namespace mimp
 	};
 
 
-static void serialize(OutputStream &stream,const MeshAABB &aabb)
+	static void serialize(OutputStream &stream,const physx::PxBounds3 &aabb)
 {
-	stream << aabb.mMin[0];
-	stream << aabb.mMin[1];
-	stream << aabb.mMin[2];
-	stream << aabb.mMax[0];
-	stream << aabb.mMax[1];
-	stream << aabb.mMax[2];
+	stream << aabb.minimum[0];
+	stream << aabb.minimum[1];
+	stream << aabb.minimum[2];
+	stream << aabb.maximum[0];
+	stream << aabb.maximum[1];
+	stream << aabb.maximum[2];
 }
 
 static void serialize(OutputStream &stream,const MeshRawTexture &m)
@@ -237,10 +237,10 @@ static void serialize(OutputStream &stream,const MeshBone &m)
 	stream << m.mPosition[0];
 	stream << m.mPosition[1];
 	stream << m.mPosition[2];
-	stream << m.mOrientation[0];
-	stream << m.mOrientation[1];
-	stream << m.mOrientation[2];
-	stream << m.mOrientation[3];
+	stream << m.mOrientation.x;
+	stream << m.mOrientation.y;
+	stream << m.mOrientation.z;
+	stream << m.mOrientation.w;
 	stream << m.mScale[0];
 	stream << m.mScale[1];
 	stream << m.mScale[2];
@@ -262,10 +262,10 @@ static void serialize(OutputStream &stream,const MeshAnimPose &m)
 	stream << m.mPos[0];
 	stream << m.mPos[1];
 	stream << m.mPos[2];
-	stream << m.mQuat[0];
-	stream << m.mQuat[1];
-	stream << m.mQuat[2];
-	stream << m.mQuat[3];
+	stream << m.mQuat.x;
+	stream << m.mQuat.y;
+	stream << m.mQuat.z;
+	stream << m.mQuat.w;
 	stream << m.mScale[0];
 	stream << m.mScale[1];
 	stream << m.mScale[2];
@@ -485,10 +485,10 @@ static void serialize(OutputStream &stream,const MeshInstance &m)
 	stream << m.mPosition[0];
 	stream << m.mPosition[1];
 	stream << m.mPosition[2];
-	stream << m.mRotation[0];
-	stream << m.mRotation[1];
-	stream << m.mRotation[2];
-	stream << m.mRotation[3];
+	stream << m.mRotation.x;
+	stream << m.mRotation.y;
+	stream << m.mRotation.z;
+	stream << m.mRotation.w;
 	stream << m.mScale[0];
 	stream << m.mScale[1];
 	stream << m.mScale[2];
@@ -573,10 +573,10 @@ static void serializeEZB(FILE *fph,const MeshSystem *ms)
 			const MeshCollisionRepresentation &m = *ms->mMeshCollisionRepresentations[i];
 			serialize(stream,m);
 		}
-		stream << ms->mPlane[0];
-		stream << ms->mPlane[1];
-		stream << ms->mPlane[2];
-		stream << ms->mPlane[3];
+		stream << ms->mPlane.n.x;
+		stream << ms->mPlane.n.y;
+		stream << ms->mPlane.n.z;
+		stream << ms->mPlane.d;
 
 	}
 }
