@@ -733,6 +733,8 @@ public:
 			mStream >> mPlane.n.y;
 			mStream >> mPlane.n.z;
 			mStream >> mPlane.d;
+
+			fixupNamedPointers(); // assign pointers based on names
 		}
 	}
 
@@ -831,6 +833,39 @@ public:
 	{
 		delete this;
 	}
+
+	void fixupNamedPointers(void)
+	{
+		for (physx::PxU32 i=0; i<mMeshCount; i++)
+		{
+			Mesh *m = mMeshes[i];
+			// patch named pointers for submesh materials
+			for (physx::PxU32 j=0; j<m->mSubMeshCount; j++)
+			{
+				SubMesh *s = m->mSubMeshes[j];
+				for (physx::PxU32 j=0; j<mMaterialCount; j++)
+				{
+					MeshMaterial &mm = mMaterials[j];
+					if ( strcmp(s->mMaterialName,mm.mName) == 0 )
+					{
+						s->mMaterial = &mm;
+						break;
+					}
+				}
+			}
+			// patch named pointers for skeletons
+			for (physx::PxU32 j=0; j<mSkeletonCount; j++)
+			{
+				MeshSkeleton *s = mSkeletons[j];
+				if ( strcmp(s->mName,m->mSkeletonName) == 0 )
+				{
+					m->mSkeleton = s;
+					break;
+				}
+			}
+		}
+	}
+
 
 	InputStream	mStream;
 };
