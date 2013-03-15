@@ -30,6 +30,8 @@
 */
 #include "MeshImportEZB.h"
 #include "EZMesh.h"
+#include <string.h>
+#include <malloc.h>
 #include <new.h>
 
 
@@ -253,12 +255,12 @@ private:
 
 void deserialize(InputStream &mStream,physx::PxBounds3 &m)
 {
-	mStream >> m.minimum[0];
-	mStream >> m.minimum[1];
-	mStream >> m.minimum[2];
-	mStream >> m.maximum[0];
-	mStream >> m.maximum[1];
-	mStream >> m.maximum[2];
+	mStream >> m.minimum.x;
+	mStream >> m.minimum.y;
+	mStream >> m.minimum.z;
+	mStream >> m.maximum.x;
+	mStream >> m.maximum.y;
+	mStream >> m.maximum.z;
 }
 void deserialize(InputStream &mStream,MeshRawTexture &m)
 {
@@ -284,16 +286,16 @@ void deserialize(InputStream &mStream,MeshBone &m)
 {
 	mStream >> m.mName;
 	mStream >> m.mParentIndex;
-	mStream >> m.mPosition[0];
-	mStream >> m.mPosition[1];
-	mStream >> m.mPosition[2];
+	mStream >> m.mPosition.x;
+	mStream >> m.mPosition.y;
+	mStream >> m.mPosition.z;
 	mStream >> m.mOrientation.x;
 	mStream >> m.mOrientation.y;
 	mStream >> m.mOrientation.z;
 	mStream >> m.mOrientation.w;
-	mStream >> m.mScale[0];
-	mStream >> m.mScale[1];
-	mStream >> m.mScale[2];
+	mStream >> m.mScale.x;
+	mStream >> m.mScale.y;
+	mStream >> m.mScale.z;
 }
 
 void deserialize(InputStream &mStream,MeshSkeleton &m)
@@ -317,16 +319,16 @@ void deserialize(InputStream &mStream,MeshSkeleton &m)
 
 void deserialize(InputStream &mStream,MeshAnimPose &m)
 {
-	mStream >> m.mPos[0];
-	mStream >> m.mPos[1];
-	mStream >> m.mPos[2];
+	mStream >> m.mPos.x;
+	mStream >> m.mPos.y;
+	mStream >> m.mPos.z;
 	mStream >> m.mQuat.x;
 	mStream >> m.mQuat.y;
 	mStream >> m.mQuat.z;
 	mStream >> m.mQuat.w;
-	mStream >> m.mScale[0];
-	mStream >> m.mScale[1];
-	mStream >> m.mScale[2];
+	mStream >> m.mScale.x;
+	mStream >> m.mScale.y;
+	mStream >> m.mScale.z;
 }
 
 void deserialize(InputStream &mStream,MeshAnimTrack &m)
@@ -414,15 +416,15 @@ void deserialize(InputStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
 
 	if ( vertexFlags & MIVF_POSITION )
 	{
-		mStream >> m.mPos[0];
-		mStream >> m.mPos[1];
-		mStream >> m.mPos[2];
+		mStream >> m.mPos.x;
+		mStream >> m.mPos.y;
+		mStream >> m.mPos.z;
 	}
 	if ( vertexFlags & MIVF_NORMAL )
 	{
-		mStream >> m.mNormal[0];
-		mStream >> m.mNormal[1];
-		mStream >> m.mNormal[2];
+		mStream >> m.mNormal.x;
+		mStream >> m.mNormal.y;
+		mStream >> m.mNormal.z;
 	}
 	if ( vertexFlags & MIVF_COLOR )
 	{
@@ -430,35 +432,35 @@ void deserialize(InputStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
 	}
 	if ( vertexFlags & MIVF_TEXEL1 )
 	{
-		mStream >> m.mTexel1[0];
-		mStream >> m.mTexel1[1];
+		mStream >> m.mTexel1.x;
+		mStream >> m.mTexel1.y;
 	}
 	if ( vertexFlags & MIVF_TEXEL2 )
 	{
-		mStream >> m.mTexel2[0];
-		mStream >> m.mTexel2[1];
+		mStream >> m.mTexel2.x;
+		mStream >> m.mTexel2.y;
 	}
 	if ( vertexFlags & MIVF_TEXEL3 )
 	{
-		mStream >> m.mTexel3[0];
-		mStream >> m.mTexel3[1];
+		mStream >> m.mTexel3.x;
+		mStream >> m.mTexel3.y;
 	}
 	if ( vertexFlags & MIVF_TEXEL4 )
 	{
-		mStream >> m.mTexel4[0];
-		mStream >> m.mTexel4[1];
+		mStream >> m.mTexel4.x;
+		mStream >> m.mTexel4.y;
 	}
 	if ( vertexFlags & MIVF_TANGENT )
 	{
-		mStream >> m.mTangent[0];
-		mStream >> m.mTangent[1];
-		mStream >> m.mTangent[2];
+		mStream >> m.mTangent.x;
+		mStream >> m.mTangent.y;
+		mStream >> m.mTangent.z;
 	}
 	if ( vertexFlags & MIVF_BINORMAL )
 	{
-		mStream >> m.mBiNormal[0];
-		mStream >> m.mBiNormal[1];
-		mStream >> m.mBiNormal[2];
+		mStream >> m.mBiNormal.x;
+		mStream >> m.mBiNormal.y;
+		mStream >> m.mBiNormal.z;
 	}
 	if ( vertexFlags & MIVF_BONE_WEIGHTING  )
 	{
@@ -466,10 +468,10 @@ void deserialize(InputStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
 		mStream >> m.mBone[1];
 		mStream >> m.mBone[2];
 		mStream >> m.mBone[3];
-		mStream >> m.mWeight[0];
-		mStream >> m.mWeight[1];
-		mStream >> m.mWeight[2];
-		mStream >> m.mWeight[3];
+		mStream >> m.mWeight.x;
+		mStream >> m.mWeight.y;
+		mStream >> m.mWeight.z;
+		mStream >> m.mWeight.w;
 	}
 	if ( vertexFlags & MIVF_RADIUS )
 	{
@@ -477,59 +479,59 @@ void deserialize(InputStream &mStream,MeshVertex &m,physx::PxU32 vertexFlags)
 	}
 	if ( vertexFlags & MIVF_INTERP1 )
 	{
-		mStream >> m.mInterp1[0];
-		mStream >> m.mInterp1[1];
-		mStream >> m.mInterp1[2];
-		mStream >> m.mInterp1[3];
+		mStream >> m.mInterp1.x;
+		mStream >> m.mInterp1.y;
+		mStream >> m.mInterp1.z;
+		mStream >> m.mInterp1.w;
 	}
 	if ( vertexFlags & MIVF_INTERP2 )
 	{
-		mStream >> m.mInterp2[0];
-		mStream >> m.mInterp2[1];
-		mStream >> m.mInterp2[2];
-		mStream >> m.mInterp2[3];
+		mStream >> m.mInterp2.x;
+		mStream >> m.mInterp2.y;
+		mStream >> m.mInterp2.z;
+		mStream >> m.mInterp2.w;
 	}
 	if ( vertexFlags & MIVF_INTERP3 )
 	{
-		mStream >> m.mInterp3[0];
-		mStream >> m.mInterp3[1];
-		mStream >> m.mInterp3[2];
-		mStream >> m.mInterp3[3];
+		mStream >> m.mInterp3.x;
+		mStream >> m.mInterp3.y;
+		mStream >> m.mInterp3.z;
+		mStream >> m.mInterp3.w;
 	}
 	if ( vertexFlags & MIVF_INTERP4 )
 	{
-		mStream >> m.mInterp4[0];
-		mStream >> m.mInterp4[1];
-		mStream >> m.mInterp4[2];
-		mStream >> m.mInterp4[3];
+		mStream >> m.mInterp4.x;
+		mStream >> m.mInterp4.y;
+		mStream >> m.mInterp4.z;
+		mStream >> m.mInterp4.w;
 	}
 	if ( vertexFlags & MIVF_INTERP5 )
 	{
-		mStream >> m.mInterp5[0];
-		mStream >> m.mInterp5[1];
-		mStream >> m.mInterp5[2];
-		mStream >> m.mInterp5[3];
+		mStream >> m.mInterp5.x;
+		mStream >> m.mInterp5.y;
+		mStream >> m.mInterp5.z;
+		mStream >> m.mInterp5.w;
 	}
 	if ( vertexFlags & MIVF_INTERP6 )
 	{
-		mStream >> m.mInterp6[0];
-		mStream >> m.mInterp6[1];
-		mStream >> m.mInterp6[2];
-		mStream >> m.mInterp6[3];
+		mStream >> m.mInterp6.x;
+		mStream >> m.mInterp6.y;
+		mStream >> m.mInterp6.z;
+		mStream >> m.mInterp6.w;
 	}
 	if ( vertexFlags & MIVF_INTERP7 )
 	{
-		mStream >> m.mInterp7[0];
-		mStream >> m.mInterp7[1];
-		mStream >> m.mInterp7[2];
-		mStream >> m.mInterp7[3];
+		mStream >> m.mInterp7.x;
+		mStream >> m.mInterp7.y;
+		mStream >> m.mInterp7.z;
+		mStream >> m.mInterp7.w;
 	}
 	if ( vertexFlags & MIVF_INTERP8 )
 	{
-		mStream >> m.mInterp8[0];
-		mStream >> m.mInterp8[1];
-		mStream >> m.mInterp8[2];
-		mStream >> m.mInterp8[3];
+		mStream >> m.mInterp8.x;
+		mStream >> m.mInterp8.y;
+		mStream >> m.mInterp8.z;
+		mStream >> m.mInterp8.w;
 	}
 
 
@@ -570,16 +572,16 @@ void deserialize(InputStream &mStream,Mesh &m)
 void deserialize(InputStream &mStream,MeshInstance &m)
 {
 	mStream >> m.mMeshName;
-	mStream >> m.mPosition[0];
-	mStream >> m.mPosition[1];
-	mStream >> m.mPosition[2];
+	mStream >> m.mPosition.x;
+	mStream >> m.mPosition.y;
+	mStream >> m.mPosition.z;
 	mStream >> m.mRotation.x;
 	mStream >> m.mRotation.y;
 	mStream >> m.mRotation.z;
 	mStream >> m.mRotation.w;
-	mStream >> m.mScale[0];
-	mStream >> m.mScale[1];
-	mStream >> m.mScale[2];
+	mStream >> m.mScale.x;
+	mStream >> m.mScale.y;
+	mStream >> m.mScale.z;
 }
 
 void deserialize(InputStream & /*mStream*/,const MeshCollisionRepresentation & /*m*/)

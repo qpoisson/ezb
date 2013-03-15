@@ -75,37 +75,28 @@ namespace ezmesh
 	public:
 		MeshVertex(void)
 		{
-			mPos[0] = mPos[1] = mPos[2] = 0;
-			mNormal[0] = 0; mNormal[1] = 1; mNormal[2] = 0;
+			mPos = physx::PxVec3(0,0,0);
+			mNormal = physx::PxVec3(0,0,0);
 			mColor = 0xFFFFFFFF;
-			mTexel1[0] = mTexel1[1] = 0;
-			mTexel2[0] = mTexel2[1] = 0;
-			mTexel3[0] = mTexel3[1] = 0;
-			mTexel4[0] = mTexel4[1] = 0;
+			mTexel1 = physx::PxVec2(0,0);
+			mTexel2 = physx::PxVec2(0,0);
+			mTexel3 = physx::PxVec2(0,0);
+			mTexel4 = physx::PxVec2(0,0);
 
-			mInterp1[0] = mInterp1[1] = mInterp1[2] = mInterp1[3] =0;
-			mInterp2[0] = mInterp2[1] = mInterp2[2] = mInterp2[3] =0;
-			mInterp3[0] = mInterp3[1] = mInterp3[2] = mInterp3[3] =0;
-			mInterp4[0] = mInterp4[1] = mInterp4[2] = mInterp4[3] =0;
-			mInterp5[0] = mInterp5[1] = mInterp5[2] = mInterp5[3] =0;
-			mInterp6[0] = mInterp6[1] = mInterp6[2] = mInterp6[3] =0;
-			mInterp7[0] = mInterp7[1] = mInterp7[2] = mInterp7[3] =0;
-			mInterp8[0] = mInterp8[1] = mInterp8[2] = mInterp8[3] =0;
+			mInterp1 = physx::PxVec4(0,0,0,0);
+			mInterp2 = physx::PxVec4(0,0,0,0);
+			mInterp3 = physx::PxVec4(0,0,0,0);
+			mInterp4 = physx::PxVec4(0,0,0,0);
+			mInterp5 = physx::PxVec4(0,0,0,0);
+			mInterp6 = physx::PxVec4(0,0,0,0);
+			mInterp7 = physx::PxVec4(0,0,0,0);
+			mInterp8 = physx::PxVec4(0,0,0,0);
 
-			mTangent[0] = mTangent[1] = mTangent[2] = 0;
-			mBiNormal[0] = mBiNormal[1] = mBiNormal[2] = 0;
-			mWeight[0] = 1; mWeight[1] = 0; mWeight[2] = 0; mWeight[3] = 0;
+			mTangent = physx::PxVec3(0,0,0);
+			mBiNormal = physx::PxVec3(0,0,0);
+			mWeight = physx::PxVec4(1,0,0,0);
 			mBone[0] = mBone[1] = mBone[2] = mBone[3] = 0;
 			mRadius = 0; // use for cloth simulations
-		}
-
-		bool  operator==(const MeshVertex &v) const
-		{
-			bool ret = false;
-
-			if ( memcmp(this,&v,sizeof(MeshVertex)) == 0 ) ret = true;
-
-			return ret;
 		}
 
 		physx::PxVec3		mPos;			// The vertex position
@@ -152,16 +143,9 @@ namespace ezmesh
 
 		void Identity(void)
 		{
-			mPosition[0] = 0;
-			mPosition[1] = 0;
-			mPosition[2] = 0;
-
-			mOrientation = physx::PxQuat::createIdentity();
-
-			mScale[0] = 1;
-			mScale[1] = 1;
-			mScale[2] = 1;
-
+			mPosition = physx::PxVec3(0,0,0);
+			mOrientation = physx::PxQuat(0,0,0,1);
+			mScale = physx::PxVec3(1,1,1);
 		}
 
 		void SetName(const char *name)
@@ -241,7 +225,7 @@ namespace ezmesh
 		MeshAnimPose(void)
 		{
 			mPos = physx::PxVec3(0,0,0);
-			mQuat = physx::PxQuat::createIdentity();
+			mQuat = physx::PxQuat(0,0,0,1);
 			mScale = physx::PxVec3(1,1,1);
 		}
 
@@ -337,28 +321,6 @@ namespace ezmesh
 		}
 
 		const char * GetName(void) const { return mName; };
-
-		const MeshAnimTrack * LocateTrack(const char *name) const
-		{
-			const MeshAnimTrack *ret = 0;
-			for (physx::PxI32 i=0; i<mTrackCount; i++)
-			{
-				const MeshAnimTrack *t = mTracks[i];
-				if ( strcmp(t->GetName(),name) == 0 )
-				{
-					ret = t;
-					break;
-				}
-			}
-			return ret;
-		}
-
-		physx::PxI32 GetFrameIndex(physx::PxF32 t) const
-		{
-			t = fmodf( t, mDuration );
-			physx::PxI32 index = physx::PxI32(t / mDtime);
-			return index;
-		}
 
 		physx::PxI32 GetTrackCount(void) const { return mTrackCount; };
 		physx::PxF32 GetDuration(void) const { return mDuration; };
@@ -471,12 +433,12 @@ namespace ezmesh
 		{
 			mMeshName = 0;
 			mMesh     = 0;
-			mPosition[0] = mPosition[1] = mPosition[2] = 0;
-			mRotation = physx::PxQuat::createIdentity();
-			mScale[0] = mScale[1] = mScale[2] = 1;
+			mPosition = physx::PxVec3(0,0,0);
+			mRotation = physx::PxQuat(0,0,0,1);
+			mScale = physx::PxVec3(1,1,1);
 		}
-		const char  *mMeshName;
-		Mesh        *mMesh;
+		const char		*mMeshName;
+		Mesh			*mMesh;
 		physx::PxVec3	mPosition;
 		physx::PxQuat	mRotation; //quaternion XYZW
 		physx::PxVec3	mScale;
@@ -546,10 +508,8 @@ namespace ezmesh
 		{
 			mType = MCT_LAST;
 			mName = NULL;
-			mLocalPosition[0] = 0;
-			mLocalPosition[1] = 0;
-			mLocalPosition[2] = 0;
-			mLocalOrientation = physx::PxQuat::createIdentity();
+			mLocalPosition = physx::PxVec3(0,0,0);
+			mLocalOrientation = physx::PxQuat(0,0,0,1);
 		}
 
 		MeshCollisionType getType(void) const { return mType; };
@@ -631,10 +591,8 @@ namespace ezmesh
 			mInfo = NULL;
 			mCollisionCount = 0;
 			mCollisionGeometry = NULL;
-			mPosition[0] = 0;
-			mPosition[1] = 0;
-			mPosition[2] = 0;
-			mOrientation = physx::PxQuat::createIdentity();
+			mPosition = physx::PxVec3(0,0,0);
+			mOrientation = physx::PxQuat(0,0,0,1);
 			mSolverCount = 4;
 			mAwake = true;
 		}
@@ -660,15 +618,9 @@ namespace ezmesh
 			mTwistHigh = 0;
 			mSwing1 = 0;
 			mSwing2 = 0;
-			mOffset[0] = 0;
-			mOffset[1] = 0;
-			mOffset[2] = 0;
-			mXaxis[0] = 1;
-			mXaxis[1] = 0;
-			mXaxis[2] = 0;
-			mZaxis[0] = 0;
-			mZaxis[1] = 0;
-			mZaxis[2] = 1;
+			mOffset = physx::PxVec3(0,0,0);
+			mXaxis = physx::PxVec3(1,0,0);
+			mZaxis = physx::PxVec3(0,0,1);
 		}
 		const char			*mName;            // name of joint; defines which mesh collision representation it is connected to.
 		const char			*mParent;        // name of parent, defines which mesh collision representation this joint connects to.
